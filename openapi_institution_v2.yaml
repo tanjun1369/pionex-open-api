@@ -2304,8 +2304,8 @@ components:
       properties:
         status:
           type: string
-          description: "`SUBMITTED` / `PENDING` / `SUPPLEMENT_REQUIRED` / `APPROVED` / `REJECTED`."
-          enum: [SUBMITTED, PENDING, SUPPLEMENT_REQUIRED, APPROVED, REJECTED]
+          description: "`SUBMITTED` / `APPROVED` / `REJECTED`."
+          enum: [SUBMITTED, APPROVED, REJECTED]
         reason:
           type: string
           description: Review conclusion code; empty before review.
