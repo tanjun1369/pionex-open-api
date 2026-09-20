@@ -2921,7 +2921,7 @@ components:
           description: Chain name, e.g. `TRC20`.
         type:
           type: string
-          enum: [deposit, withdraw]
+          enum: [DEPOSIT, WITHDRAW]
           description: Record type.
         internal:
           type: boolean
@@ -2951,7 +2951,7 @@ components:
             On-chain record status. The applicable set depends on `type`.
 
 
-            Deposit (`type = deposit`): `NOTIFIED` (deposit detected, awaiting
+            Deposit (`type = DEPOSIT`): `NOTIFIED` (deposit detected, awaiting
             receipt), `RECEIVED` (funds received, pending confirmations),
             `CONFIRMED` (confirmed and credited — final success), `ABNORMAL`
             (abnormal deposit requiring attention), `IRREGULAR` (flagged as
@@ -2960,7 +2960,7 @@ components:
             (pending manual verification).
 
 
-            Withdrawal (`type = withdraw`): `APPLIED` (request submitted),
+            Withdrawal (`type = WITHDRAW`): `APPLIED` (request submitted),
             `APPROVED` (approved, pending remittance), `SHORTAGE` (insufficient
             balance to process), `REJECTED` (rejected during review), `REMITTED`
             (remitted / broadcast on-chain), `FINISHED` (completed — final
