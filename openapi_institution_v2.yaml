@@ -1125,7 +1125,7 @@ paths:
 
         | Error Code | Description |
         |------------|-------------|
-        | `P_PAY_OPEN_API_WIRE_UNSUPPORTED_CORRIDOR` | The `country` / `currency` / `rail` combination is not a supported USD corridor. |
+        | `P_PAY_OPEN_API_WIRE_UNSUPPORTED_CORRIDOR` | The corridor is not supported. Both FV Bank and SCB/DBS Bank accept only `currency=USD` + `rail=international_wire` + a valid ISO 3166-1 alpha-2 `country`; omitting `currency` or `rail`, or sending any other value, is rejected. A 3-letter `country` is rejected with `P_PAY_OPEN_API_INVALID_ARGUMENT`. |
 
         Common and wire-common codes (see **Error Codes**) also apply.
       operationId: institutionPayoutAccountRequirements
@@ -1140,20 +1140,23 @@ paths:
         - name: country
           in: query
           required: false
-          description: ISO 3166-1 alpha-2.
+          description: ISO 3166-1 alpha-2 (exactly 2 letters, e.g. `US`) of the beneficiary bank. Effectively required — omitting it, or sending a 3-letter code, is rejected (see **Errors**).
           schema:
             type: string
         - name: currency
           in: query
           required: false
-          description: ISO 4217.
+          description: ISO 4217. Must be `USD` — the only supported payout currency. Effectively required; omitting it or sending any other value yields `P_PAY_OPEN_API_WIRE_UNSUPPORTED_CORRIDOR`.
           schema:
             type: string
+            enum: [USD]
         - name: rail
           in: query
           required: false
+          description: Must be `international_wire` — the only supported rail. Effectively required; omitting it or sending any other value yields `P_PAY_OPEN_API_WIRE_UNSUPPORTED_CORRIDOR`.
           schema:
             type: string
+            enum: [international_wire]
       responses:
         '200':
           description: Successful response
@@ -1229,7 +1232,7 @@ paths:
 
         | Error Code | Description |
         |------------|-------------|
-        | `P_PAY_OPEN_API_WIRE_UNSUPPORTED_CORRIDOR` | Not a supported USD international-wire / country combination, or a base account field is missing. |
+        | `P_PAY_OPEN_API_WIRE_UNSUPPORTED_CORRIDOR` | Not a supported corridor. Both FV Bank and SCB/DBS Bank require `spec.currency=USD` + `spec.rail=international_wire` + a valid ISO 3166-1 alpha-2 `spec.country`; also returned when a mandatory base field (`holderType`, `accountHolderName`, `bankName`, `accountNumber`) is missing. |
         | `P_PAY_OPEN_API_WIRE_ACCOUNT_NOT_AVAILABLE` | The channel beneficiary or virtual account is not active yet. |
         | `P_PAY_OPEN_API_WIRE_KYB_OUTCOME_UNKNOWN` | The channel could not confirm account creation, or matched more than one remote record. |
 
@@ -1421,7 +1424,7 @@ paths:
 
         | Error Code | Description |
         |------------|-------------|
-        | `P_PAY_OPEN_API_WIRE_UNSUPPORTED_CORRIDOR` | Not a supported `sourceCurrency` → `targetCurrency` pair. |
+        | `P_PAY_OPEN_API_WIRE_UNSUPPORTED_CORRIDOR` | Not a supported `sourceCurrency` → `targetCurrency` pair. Both FV Bank and SCB/DBS Bank support only `USDT` → `USD`. |
         | `P_PAY_OPEN_API_WIRE_AMOUNT_OUT_OF_RANGE` | The `amount` is invalid, below the minimum, or fails fee calculation. |
         | `P_PAY_OPEN_API_WIRE_RESOURCE_NOT_FOUND` | The `payoutAccountId` does not exist. |
         | `P_PAY_OPEN_API_WIRE_ACCOUNT_NOT_AVAILABLE` | The payout account is not ready (not yet `AVAILABLE`). |
@@ -1452,10 +1455,12 @@ paths:
                   description: Target payout account (`accountId` from Create/List Payout Account).
                 sourceCurrency:
                   type: string
-                  description: Debit asset code (e.g. `USDT`).
+                  enum: [USDT]
+                  description: Debit asset code. Must be `USDT` — the only supported source. Any other value is rejected with `P_PAY_OPEN_API_WIRE_UNSUPPORTED_CORRIDOR`.
                 targetCurrency:
                   type: string
-                  description: Credited asset code (e.g. `USD`).
+                  enum: [USD]
+                  description: Credited asset code. Must be `USD` — the only supported target. Any other value is rejected with `P_PAY_OPEN_API_WIRE_UNSUPPORTED_CORRIDOR`.
                 amount:
                   type: string
                   description: Total debit amount, in `sourceCurrency`.
@@ -2773,10 +2778,15 @@ components:
       properties:
         currency:
           type: string
+          enum: [USD]
+          description: Must be `USD`. Any other value is rejected with `P_PAY_OPEN_API_WIRE_UNSUPPORTED_CORRIDOR`.
         country:
           type: string
+          description: ISO 3166-1 alpha-2 (exactly 2 letters, e.g. `US`) of the beneficiary bank. A 3-letter code is rejected with `P_PAY_OPEN_API_INVALID_ARGUMENT`.
         rail:
           type: string
+          enum: [international_wire]
+          description: Must be `international_wire`. Any other value is rejected with `P_PAY_OPEN_API_WIRE_UNSUPPORTED_CORRIDOR`.
         holderType:
           type: string
           enum: [INDIVIDUAL, BUSINESS]
