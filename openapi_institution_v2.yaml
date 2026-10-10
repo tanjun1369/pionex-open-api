@@ -181,7 +181,7 @@ info:
     |------------|-------------|
     | `P_PAY_OPEN_API_WIRE_INVALID_PARAMS` | Request parameters are missing, malformed, or an invalid combination. |
     | `P_PAY_OPEN_API_WIRE_SYSTEM_ERROR` | Channel-side or internal error; the result may be indeterminate — query by the original identifier or retry the request unchanged. |
-    | `P_PAY_OPEN_API_WIRE_NO_AVAILABLE_CHANNEL` | `channel` was omitted and none could be selected automatically (only endpoints where `channel` is optional). |
+    | `P_PAY_OPEN_API_WIRE_NO_AVAILABLE_CHANNEL` | `channel` was omitted. The channels in this API (FV Bank, SCB/DBS Bank) are never auto-selected, so `channel` must be supplied on every `wire/*` request — including endpoints where the parameter is not schema-required. |
     | `P_PAY_OPEN_API_WIRE_CHANNEL_UNIMPLEMENTED` | The selected channel does not implement this operation. |
 
     Every other `P_PAY_OPEN_API_WIRE_` code is endpoint-specific and is listed in
@@ -1135,6 +1135,7 @@ paths:
         - name: channel
           in: query
           required: false
+          description: Channel name (e.g. `FV Bank`, `SCB/DBS Bank`). Effectively required — omitting it yields `P_PAY_OPEN_API_WIRE_NO_AVAILABLE_CHANNEL`, since this API's channels are never auto-selected.
           schema:
             type: string
         - name: country
@@ -1450,6 +1451,7 @@ paths:
                   description: Globally unique idempotency key. Retries must reuse the original value.
                 channel:
                   type: string
+                  description: Channel name (e.g. `FV Bank`, `SCB/DBS Bank`). Effectively required — omitting it yields `P_PAY_OPEN_API_WIRE_NO_AVAILABLE_CHANNEL`, since this API's channels are never auto-selected.
                 payoutAccountId:
                   type: string
                   description: Target payout account (`accountId` from Create/List Payout Account).
